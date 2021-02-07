@@ -61,6 +61,7 @@ jobs:
       - name: Show Last md5
         run:  |
           sudo docker images --digests | awk '{print $3}'
+          sudo docker images
 
       - name: Check MD5
         run:  |
