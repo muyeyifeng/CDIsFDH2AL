@@ -68,7 +68,7 @@ jobs:
           if [[ "$(sudo docker images --digests| grep muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(sudo docker images --digests| grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
                   echo "action_state=cancel" >> $GITHUB_ENV
           else
-                  sudo docker rmi `docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}'`
+                  sudo docker rmi registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
           fi
 
       - name: Tag DockerImage
