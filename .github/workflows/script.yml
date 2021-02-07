@@ -71,7 +71,7 @@ jobs:
         run:  |
           ids=`sudo docker images | grep 'muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'| tr '\n' ' '`
           OLD_IFS="$IFS"
-          IFS="\n" 
+          IFS=" " 
           arr=($ids)
           IFS="$OLD_IFS"
           if [[ "${arr[1]}" == "${arr[0]}" ]]; then
