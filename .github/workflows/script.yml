@@ -53,6 +53,18 @@ jobs:
           sudo -E apt-get clean
           df -h
 
+      - name: Add Aliyun Docker Accelerator
+        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
+        run: |
+         sudo mkdir -p /etc/docker
+         sudo tee /etc/docker/daemon.json <<-'EOF'
+         {
+           "registry-mirrors": ["${{ secrets.ALIACCELERATOR }}"]
+         }
+         EOF
+         sudo systemctl daemon-reload
+         sudo systemctl restart docker 
+
       - name: Pull Docker Image
         run:  |
           sudo docker pull muyeyifeng/lede-${{ matrix.db-backend }}
@@ -65,7 +77,7 @@ jobs:
 
       - name: Check MD5
         run:  |
-          if [[ "$(sudo docker images --digests| grep muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(sudo docker images --digests| grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
+          if [[ "$(sudo docker images | grep muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(sudo docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
                   echo "action_state=cancel" >> $GITHUB_ENV
           else
                   sudo docker rmi registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
@@ -86,18 +98,6 @@ jobs:
          echo "tag=$tag" >> $GITHUB_ENV
          sudo docker tag $ImageId $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:latest
          sudo docker tag $ImageId $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:$tag
-
-      - name: Add Aliyun Docker Accelerator
-        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
-        run: |
-         sudo mkdir -p /etc/docker
-         sudo tee /etc/docker/daemon.json <<-'EOF'
-         {
-           "registry-mirrors": ["${{ secrets.ALIACCELERATOR }}"]
-         }
-         EOF
-         sudo systemctl daemon-reload
-         sudo systemctl restart docker 
 
       - name: Push Aliyun DockerImage
         if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
