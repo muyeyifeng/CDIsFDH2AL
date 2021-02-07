@@ -1,0 +1,110 @@
+#
+# This is free software, lisence use MIT.
+# 
+
+name: Clone Docker Images from Docker Hub to Ali
+
+on:
+  push:
+    branches: 
+      - main
+  schedule:
+    - cron: 30 18 * * 0/3
+
+env:
+  action_state: run
+  GITHUB_EMAIL: muyeyifeng@gmail.com	#email
+  GITHUB_USER: muyeyifeng
+
+  #hub.docker.com用户
+  HUBDOCKER_REGISTRY_USERNAME: muyeyifeng
+
+  DOCKER_REGISTRY_USERNAME: muyeyifeng@163.com
+  DOCKER_REGISTRY_HOST: registry.cn-beijing.aliyuncs.com
+  DOCKER_REGISTRY_URL: registry.cn-beijing.aliyuncs.com/muyeyifeng/
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        db-backend: [rpi2-3-4, rpi364, rpi464, aarch64, x64]	# 平台分配
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          ref: main
+          fetch-depth: 1000000
+
+      - name: Space cleanup
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        if: ${{ env.action_state == 'run' ||  github.event_name == 'push' }}
+        run: |
+          docker rmi `docker images -q`
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
+          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+          sudo -E apt-get update
+          sudo -E apt-get upgrade -y
+          sudo -E apt-get -y install tree
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y upgrade
+          sudo -E apt-get clean
+          df -h
+
+      - name: Pull Docker Image
+        run:  |
+          docker pull muyeyifeng/lede-${{ matrix.db-backend }}
+          docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
+
+      - name: Show Last md5
+        run:  |
+          docker images --digests | awk '{print $3}'
+
+      - name: Check MD5
+        run:  |
+          if [[ "$(docker images --digests| grep muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(docker images --digests| grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
+                  echo "action_state=cancel" >> $GITHUB_ENV
+          else
+                  docker rmi `docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}'`
+          fi
+
+      - name: Tag DockerImage
+        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
+        run: |
+         echo "============================="
+         sudo docker images
+         echo "============================="
+         ImageId=$(sudo docker images | grep muyeyifeng/lede-${{ matrix.db-backend }} | awk '{print $3}')
+         echo "============================="
+         echo $ImageId
+         echo "============================="
+
+         tag=$(date +%Y%m%d%H%M%S)
+         echo "tag=$tag" >> $GITHUB_ENV
+         sudo docker tag $ImageId $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:latest
+         sudo docker tag $ImageId $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:$tag
+
+      - name: Add Aliyun Docker Accelerator
+        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
+        run: |
+         sudo mkdir -p /etc/docker
+         sudo tee /etc/docker/daemon.json <<-'EOF'
+         {
+           "registry-mirrors": ["${{ secrets.ALIACCELERATOR }}"]
+         }
+         EOF
+         sudo systemctl daemon-reload
+         sudo systemctl restart docker 
+
+      - name: Push Aliyun DockerImage
+        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
+        run: |
+         #push Aliyun
+         sudo docker login --username=$DOCKER_REGISTRY_USERNAME --password=${{ secrets.ALIDOCKER_KEY }}  $DOCKER_REGISTRY_HOST
+         sudo docker push $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:latest
+         sudo docker push $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:${{ env.tag }}
