@@ -59,8 +59,8 @@ jobs:
 
       - name: Pull Docker Image
         run:  |
-          sudo docker pull docker.io/muyeyifeng/lede-${{ matrix.db-backend }}
           sudo docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
+          sudo docker pull docker.io/muyeyifeng/lede-${{ matrix.db-backend }}
 
       - name: Show Last md5
         run:  |
@@ -69,11 +69,11 @@ jobs:
 
       - name: Check MD5
         run:  |
-          ids = `sudo docker images | grep 'muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'`
-          OLD_IFS = "$IFS"
-          IFS = "\n" 
-          arr = ($ids)
-          IFS = "$OLD_IFS"
+          ids=`sudo docker images | grep 'muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'`
+          OLD_IFS="$IFS"
+          IFS="\n" 
+          arr=($ids)
+          IFS="$OLD_IFS"
           if [[ "${arr[1]}" == "${arr[0]}" ]]; then
                   echo "action_state=cancel" >> $GITHUB_ENV
           else
