@@ -37,20 +37,12 @@ jobs:
           ref: main
           fetch-depth: 1000000
 
-      - name: Space cleanup
+      - name: Remove Docker Images
         env:
           DEBIAN_FRONTEND: noninteractive
         if: ${{ env.action_state == 'run' ||  github.event_name == 'push' }}
         run: |
           docker rmi `docker images -q`
-          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
-          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
-          sudo -E apt-get update
-          sudo -E apt-get upgrade -y
-          sudo -E apt-get -y install tree
-          sudo -E apt-get -y autoremove --purge
-          sudo -E apt-get -y upgrade
-          sudo -E apt-get clean
           df -h
 
       - name: Add Aliyun Docker Accelerator
@@ -67,7 +59,7 @@ jobs:
 
       - name: Pull Docker Image
         run:  |
-          sudo docker pull muyeyifeng/lede-${{ matrix.db-backend }}
+          sudo docker pull docker.io/muyeyifeng/lede-${{ matrix.db-backend }}
           sudo docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
 
       - name: Show Last md5
