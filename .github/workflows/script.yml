@@ -9,7 +9,7 @@ on:
     branches: 
       - main
   schedule:
-    - cron: 30 18 * * 0/3
+    - cron: 30 18 * * *
 
 env:
   action_state: run
@@ -69,7 +69,7 @@ jobs:
 
       - name: Check MD5
         run:  |
-          ids=`sudo docker images | grep 'muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'`
+          ids=`sudo docker images | grep 'muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'| tr '\n' ' '`
           OLD_IFS="$IFS"
           IFS="\n" 
           arr=($ids)
