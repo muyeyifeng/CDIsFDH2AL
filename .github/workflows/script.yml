@@ -86,7 +86,7 @@ jobs:
           fi
 
       - name: Tag DockerImage
-        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
+        if:  ${{ env.action_state == 'run' }}
         run: |
          echo "============================="
          sudo docker images
@@ -102,7 +102,7 @@ jobs:
          sudo docker tag $ImageId $DOCKER_REGISTRY_URL"lede-"${{ matrix.db-backend }}:$tag
 
       - name: Push Aliyun DockerImage
-        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
+        if:  ${{ env.action_state == 'run' }}
         run: |
          #push Aliyun
          sudo docker login --username=$DOCKER_REGISTRY_USERNAME --password=${{ secrets.ALIDOCKER_KEY }}  $DOCKER_REGISTRY_HOST
