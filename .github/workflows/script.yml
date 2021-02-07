@@ -45,6 +45,10 @@ jobs:
           docker rmi `docker images -q`
           df -h
 
+      - name: Pull Docker Image
+        run:  |
+          sudo docker pull muyeyifeng/lede-${{ matrix.db-backend }}:latest
+
       - name: Add Aliyun Docker Accelerator
         if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
         run: |
@@ -60,7 +64,6 @@ jobs:
       - name: Pull Docker Image
         run:  |
           sudo docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}:latest
-          sudo docker pull docker.io/muyeyifeng/lede-${{ matrix.db-backend }}:latest
 
       - name: Show Last md5
         run:  |
