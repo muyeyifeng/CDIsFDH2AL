@@ -59,8 +59,8 @@ jobs:
 
       - name: Pull Docker Image
         run:  |
-          sudo docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
-          sudo docker pull docker.io/muyeyifeng/lede-${{ matrix.db-backend }}
+          sudo docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}:latest
+          sudo docker pull docker.io/muyeyifeng/lede-${{ matrix.db-backend }}:latest
 
       - name: Show Last md5
         run:  |
