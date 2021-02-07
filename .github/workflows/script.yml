@@ -40,7 +40,6 @@ jobs:
       - name: Remove Docker Images
         env:
           DEBIAN_FRONTEND: noninteractive
-        if: ${{ env.action_state == 'run' ||  github.event_name == 'push' }}
         run: |
           docker rmi `docker images -q`
           df -h
@@ -50,7 +49,6 @@ jobs:
           sudo docker pull muyeyifeng/lede-${{ matrix.db-backend }}:latest
 
       - name: Add Aliyun Docker Accelerator
-        if:  ${{ env.action_state == 'run' || github.event_name == 'push' }}
         run: |
          sudo mkdir -p /etc/docker
          sudo tee /etc/docker/daemon.json <<-'EOF'
