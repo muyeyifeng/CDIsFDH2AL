@@ -16,9 +16,6 @@ env:
   GITHUB_EMAIL: muyeyifeng@gmail.com	#email
   GITHUB_USER: muyeyifeng
 
-  #hub.docker.com用户
-  HUBDOCKER_REGISTRY_USERNAME: muyeyifeng
-
   DOCKER_REGISTRY_USERNAME: muyeyifeng@163.com
   DOCKER_REGISTRY_HOST: registry.cn-beijing.aliyuncs.com
   DOCKER_REGISTRY_URL: registry.cn-beijing.aliyuncs.com/muyeyifeng/
@@ -58,19 +55,19 @@ jobs:
 
       - name: Pull Docker Image
         run:  |
-          docker pull muyeyifeng/lede-${{ matrix.db-backend }}
-          docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
+          sudo docker pull muyeyifeng/lede-${{ matrix.db-backend }}
+          sudo docker pull registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
 
       - name: Show Last md5
         run:  |
-          docker images --digests | awk '{print $3}'
+          sudo docker images --digests | awk '{print $3}'
 
       - name: Check MD5
         run:  |
-          if [[ "$(docker images --digests| grep muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(docker images --digests| grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
+          if [[ "$(sudo docker images --digests| grep muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(sudo docker images --digests| grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
                   echo "action_state=cancel" >> $GITHUB_ENV
           else
-                  docker rmi `docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}'`
+                  sudo docker rmi `docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}'`
           fi
 
       - name: Tag DockerImage
