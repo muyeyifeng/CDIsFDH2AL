@@ -74,12 +74,12 @@ jobs:
           IFS="\n" 
           arr=($ids)
           IFS="$OLD_IFS"
-          echo "${arr[1]}"
-          echo "${arr[0]}"
           if [[ "${arr[1]}" == "${arr[0]}" ]]; then
-                  echo "action_state=cancel" >> $GITHUB_ENV
+                  echo "${arr[1]} = ${arr[0]}"
+                  echo "action_state=cancel" >> $GITHUB_ENV;
           else
-                  sudo docker rmi registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
+                  echo "${arr[1]} != ${arr[0]}"
+                  sudo docker rmi registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }};
           fi
 
       - name: Tag DockerImage
