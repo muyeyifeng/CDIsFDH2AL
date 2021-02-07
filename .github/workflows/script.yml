@@ -77,9 +77,9 @@ jobs:
 
       - name: Check MD5
         run:  |
-          sudo docker images | grep docker.io/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}'
-          sudo docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}'
-          if [[ "$(sudo docker images | grep docker.io/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" == "$(sudo docker images | grep registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}  | awk '{print $3}')" ]]; then
+          sudo docker images | grep 'docker.io/muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'
+          sudo docker images | grep 'registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}'
+          if [[ "$(sudo docker images | grep 'docker.io/muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}')" == "$(sudo docker images | grep 'registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}'  | awk '{print $3}')" ]]; then
                   echo "action_state=cancel" >> $GITHUB_ENV
           else
                   sudo docker rmi registry.cn-beijing.aliyuncs.com/muyeyifeng/lede-${{ matrix.db-backend }}
